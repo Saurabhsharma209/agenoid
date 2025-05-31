@@ -2,9 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { PaperAirplaneIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { Menu } from '@headlessui/react';
+import { Toast } from './Toast';
+import { agixService } from '../services/agixService';
 
 export const ChatWindow: React.FC = () => {
   const [message, setMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { chatHistory, addChatMessage, startCampaign } = useStore();
 
@@ -16,40 +20,35 @@ export const ChatWindow: React.FC = () => {
     scrollToBottom();
   }, [chatHistory]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || isLoading) return;
 
-    // Add user message
-    addChatMessage(message, 'user');
+    try {
+      setIsLoading(true);
+      // Add user message
+      addChatMessage(message, 'user');
+      setShowToast(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const response = generateAIResponse(message);
-      addChatMessage(response, 'assistant');
-    }, 1000);
+      // Get response from AGIX
+      const response = await agixService.sendMessage(message);
+      addChatMessage(response.response, 'assistant');
 
-    setMessage('');
-  };
+      // Handle campaign-related commands
+      if (message.toLowerCase().includes('start campaign')) {
+        await agixService.startCampaign({
+          plans: ['A', 'B'],
+          leads: [], // Add your leads data here
+        });
+      }
 
-  const generateAIResponse = (userMessage: string): string => {
-    // Simple mock responses based on keywords
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('plan')) {
-      return "I've created two campaign plans:\n\nPlan A: SMS → WhatsApp → Voicebot → Agent\nPlan B: Voicebot → Agent\n\nWould you like to proceed with these plans?";
+      setMessage('');
+    } catch (error) {
+      console.error('Error:', error);
+      addChatMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+    } finally {
+      setIsLoading(false);
     }
-    
-    if (lowerMessage.includes('start') || lowerMessage.includes('begin')) {
-      startCampaign();
-      return "Starting the campaign with the current plans. I'll keep you updated on the progress!";
-    }
-    
-    if (lowerMessage.includes('status') || lowerMessage.includes('progress')) {
-      return "The campaign is running smoothly. I can show you detailed metrics and insights if you'd like.";
-    }
-    
-    return "I understand. How can I help you with the campaign? I can create plans, start the campaign, or show you insights.";
   };
 
   return (
@@ -94,7 +93,8 @@ export const ChatWindow: React.FC = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message..."
-              className="w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-700 px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-colors duration-200 pr-24"
+              disabled={isLoading}
+              className="w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-700 px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-colors duration-200 pr-24 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <Menu as="div" className="absolute right-2 top-1/2 -translate-y-1/2">
               <Menu.Button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
@@ -131,13 +131,21 @@ export const ChatWindow: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="btn-primary flex items-center space-x-2"
+            disabled={isLoading}
+            className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <PaperAirplaneIcon className="h-5 w-5" />
-            <span>Send</span>
+            <span>{isLoading ? 'Sending...' : 'Send'}</span>
           </button>
         </div>
       </form>
+
+      {showToast && (
+        <Toast
+          message="Message sent!"
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 }; 
