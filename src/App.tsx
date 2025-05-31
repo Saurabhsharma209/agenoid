@@ -12,7 +12,7 @@ const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
   
   return (
-    <nav className="app-header">
+    <nav className="app-header">c
       <div className="container-responsive">
         <div className="flex justify-between h-16">
           <div className="flex items-center">

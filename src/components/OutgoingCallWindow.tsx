@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 interface OutgoingCallWindowProps {
   onClose: () => void;
+  callSid: string | null;
 }
 
-export const OutgoingCallWindow: React.FC<OutgoingCallWindowProps> = ({ onClose }) => {
+export const OutgoingCallWindow: React.FC<OutgoingCallWindowProps> = ({ onClose, callSid }) => {
   const [callDuration, setCallDuration] = useState(0);
   const [isConnecting, setIsConnecting] = useState(true);
 

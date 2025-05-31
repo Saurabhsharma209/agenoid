@@ -75,7 +75,7 @@ export const useStore = create<CampaignState & {
       ...lead,
       id: uuidv4(),
       status: 'pending',
-      currentStep: undefined,
+      currentStep: null,
       sentiment: 'neutral',
       updatedAt: new Date().toISOString()
     };

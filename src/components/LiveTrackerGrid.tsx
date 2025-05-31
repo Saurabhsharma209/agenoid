@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import type { Lead } from '../types';
 import { PhoneIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { agixService } from '../services/agixService';
 
 interface CallModalProps {
   lead: Lead;
@@ -11,6 +12,8 @@ interface CallModalProps {
 const CallModal: React.FC<CallModalProps> = ({ lead, onClose }) => {
   const [callDuration, setCallDuration] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
+  const [isCallLoading, setIsCallLoading] = useState(false);
+  const [callSid, setCallSid] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isConnected) return;
@@ -21,6 +24,34 @@ const CallModal: React.FC<CallModalProps> = ({ lead, onClose }) => {
 
     return () => clearInterval(timer);
   }, [isConnected]);
+
+  const handleStartCall = async () => {
+    try {
+      setIsCallLoading(true);
+      const response = await agixService.makeCall(lead.phone);
+      setCallSid(response.metadata?.Call?.Sid || null);
+      setIsConnected(true);
+    } catch (error) {
+      console.error('Failed to start call:', error);
+    } finally {
+      setIsCallLoading(false);
+    }
+  };
+
+  const handleEndCall = async () => {
+    try {
+      if (callSid) {
+        // Here you would typically call an API to end the call
+        // For now, we'll just close the modal
+        setIsConnected(false);
+        setCallDuration(0);
+        setCallSid(null);
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to end call:', error);
+    }
+  };
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -36,7 +67,7 @@ const CallModal: React.FC<CallModalProps> = ({ lead, onClose }) => {
             Call with {lead.name}
           </h3>
           <button
-            onClick={onClose}
+            onClick={handleEndCall}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -46,11 +77,12 @@ const CallModal: React.FC<CallModalProps> = ({ lead, onClose }) => {
         <div className="text-center mb-6">
           {!isConnected ? (
             <button
-              onClick={() => setIsConnected(true)}
+              onClick={handleStartCall}
+              disabled={isCallLoading}
               className="btn-primary flex items-center justify-center space-x-2 w-full"
             >
               <PhoneIcon className="h-5 w-5" />
-              <span>Connect Call</span>
+              <span>{isCallLoading ? 'Starting Call...' : 'Connect Call'}</span>
             </button>
           ) : (
             <div className="space-y-4">
@@ -59,7 +91,7 @@ const CallModal: React.FC<CallModalProps> = ({ lead, onClose }) => {
                 Call in progress...
               </div>
               <button
-                onClick={onClose}
+                onClick={handleEndCall}
                 className="btn-secondary text-red-600 hover:text-red-700 w-full"
               >
                 End Call

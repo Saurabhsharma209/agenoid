@@ -68,4 +68,27 @@ export const agixService = {
     }
   },
 
+
+
+  async makeCall(phoneNumber: string): Promise<AgixResponse> {
+    try {
+      const response = await agixClient.get(`/call?phone=${encodeURIComponent(phoneNumber)}`);
+      const responseData = response.data;
+      console.log('Call response:', responseData);
+      
+      if (!responseData) {
+        throw new Error('Invalid response format');
+      }
+
+      return {
+        response: 'Success',
+        confidence: 1,
+        metadata: { Call: { Sid: responseData.sid || 'mock-call-sid' } }
+      };
+    } catch (error) {
+      console.error('API Error:', error);
+      throw new Error('Failed to get response');
+    }
+  }
+
 }; 

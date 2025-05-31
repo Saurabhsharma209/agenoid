@@ -21,34 +21,34 @@ export interface ExotelCallResponse {
 }
 
 export const exotelService = {
-  async makeCall(phoneNumber: string): Promise<ExotelCallResponse> {
-    try {
-      // Ensure phone number is in Indian format (+91XXXXXXXXXX)
-      const formattedNumber = phoneNumber.startsWith('+91') 
-        ? phoneNumber 
-        : `+91${phoneNumber.replace(/^0+/, '')}`;
+  // async makeCall(phoneNumber: string): Promise<ExotelCallResponse> {
+  //   try {
+  //     // Ensure phone number is in Indian format (+91XXXXXXXXXX)
+  //     const formattedNumber = phoneNumber.startsWith('+91') 
+  //       ? phoneNumber 
+  //       : `+91${phoneNumber.replace(/^0+/, '')}`;
 
-      const params = new URLSearchParams();
-      params.append('From', 'sip:saurabhsf258cafa');
-      params.append('To', formattedNumber);
-      params.append('CallerId', '+912247788868'); // Indian caller ID
-      params.append('CallType', 'trans');
-      params.append('TimeLimit', '3600');
-      params.append('TimeOut', '30');
-      params.append('Priority', 'normal');
+  //     const params = new URLSearchParams();
+  //     params.append('From', 'sip:saurabhsf258cafa');
+  //     params.append('To', formattedNumber);
+  //     params.append('CallerId', '+912247788868'); // Indian caller ID
+  //     params.append('CallType', 'trans');
+  //     params.append('TimeLimit', '3600');
+  //     params.append('TimeOut', '30');
+  //     params.append('Priority', 'normal');
 
-      const response = await axios.post<ExotelCallResponse>(EXOTEL_API_URL, params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        auth: EXOTEL_AUTH
-      });
+  //     const response = await axios.post<ExotelCallResponse>(EXOTEL_API_URL, params, {
+  //       headers: {
+  //         'Content-Type': 'application/x-www-form-urlencoded'
+  //       },
+  //       auth: EXOTEL_AUTH
+  //     });
 
-      console.log('Exotel API Response:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Exotel Call Error:', error);
-      throw new Error('Failed to initiate Exotel call');
-    }
-  }
+  //     console.log('Exotel API Response:', response.data);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Exotel Call Error:', error);
+  //     throw new Error('Failed to initiate Exotel call');
+  //   }
+  // }
 }; 
