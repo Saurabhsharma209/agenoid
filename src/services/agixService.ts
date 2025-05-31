@@ -66,5 +66,6 @@ export const agixService = {
       console.error('Status Error:', error);
       throw new Error('Failed to get campaign status');
     }
-  }
+  },
+
 }; 

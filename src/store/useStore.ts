@@ -32,9 +32,16 @@ const generateRandomLead = (): Omit<Lead, 'id'> => {
   const sentiments = ['positive', 'neutral', 'negative'] as const;
   const plans = ['A', 'B'] as const;
 
+  // Generate a random 10-digit Indian phone number
+  const generateIndianPhone = () => {
+    const firstDigit = Math.floor(Math.random() * 9) + 1; // 1-9
+    const remainingDigits = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10)).join('');
+    return `+91${firstDigit}${remainingDigits}`;
+  };
+
   return {
     name: `Lead ${Math.floor(Math.random() * 1000)}`,
-    phone: `+1${Math.floor(Math.random() * 10000000000)}`,
+    phone: generateIndianPhone(),
     plan: plans[Math.floor(Math.random() * plans.length)],
     status: statuses[Math.floor(Math.random() * statuses.length)],
     currentStep: steps[Math.floor(Math.random() * steps.length)],
@@ -67,8 +74,8 @@ export const useStore = create<CampaignState & {
     const newLead: Lead = {
       ...lead,
       id: uuidv4(),
-      status: 'waiting',
-      currentStep: null,
+      status: 'pending',
+      currentStep: undefined,
       sentiment: 'neutral',
       updatedAt: new Date().toISOString()
     };
@@ -79,7 +86,7 @@ export const useStore = create<CampaignState & {
         totalLeads: state.leads.length + 1,
         planDistribution: {
           ...state.metrics.planDistribution,
-          [lead.plan]: state.metrics.planDistribution[lead.plan] + 1
+          [lead.plan as 'A' | 'B']: state.metrics.planDistribution[lead.plan as 'A' | 'B'] + 1
         }
       }
     }));
@@ -119,7 +126,7 @@ export const useStore = create<CampaignState & {
       }
 
       state.leads.forEach((lead) => {
-        if (lead.status === 'waiting' || lead.status === 'in_progress') {
+        if (lead.status === 'pending' || lead.status === 'in_progress') {
           const plan = state.activePlans.find((p) => p.id === lead.plan);
           if (!plan) return;
 

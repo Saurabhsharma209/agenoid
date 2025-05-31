@@ -18,7 +18,7 @@ const Navigation = () => {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <span className="text-xl font-display font-bold text-primary-600 dark:text-primary-400">
-                Agenoid™ Agentic Campaign Orchestrator
+                Agenoid™ Agentic  Orchestrator
               </span>
             </div>
           </div>
@@ -33,7 +33,7 @@ const Navigation = () => {
               to="/campaign"
               className={`nav-link ${isActive('/campaign') ? 'nav-link-active' : 'nav-link-inactive'}`}
             >
-              Campaign
+              Orchestrator
             </Link>
           </div>
           {/* Mobile menu button */}

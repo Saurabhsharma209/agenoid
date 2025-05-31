@@ -9,7 +9,7 @@ export const CampaignPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Campaign Orchestrator
+           Orchestrator
         </h1>
         <div className="flex items-center space-x-4">
           <span

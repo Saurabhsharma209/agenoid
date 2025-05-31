@@ -1,9 +1,27 @@
 import React, { useState } from 'react';
 import { OutgoingCallWindow } from './OutgoingCallWindow';
+import { exotelService } from '../services/exotelService';
 
 export const AgentAssist: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCallWindow, setShowCallWindow] = useState(false);
+  const [isCallLoading, setIsCallLoading] = useState(false);
+
+  const handleStartCall = async () => {
+    try {
+      setIsCallLoading(true);
+      // You can replace this with the actual phone number from your leads or user input
+      const phoneNumber = "+1234567890"; // Example phone number
+      await exotelService.makeCall(phoneNumber);
+      setShowCallWindow(true);
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Failed to start call:', error);
+      // You might want to show an error toast here
+    } finally {
+      setIsCallLoading(false);
+    }
+  };
 
   return (
     <>
@@ -60,15 +78,10 @@ export const AgentAssist: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     className="btn-primary"
-                    onClick={() => {
-                      setShowCallWindow(true);
-                      setIsOpen(false);
-                    }}
+                    onClick={handleStartCall}
+                    disabled={isCallLoading}
                   >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    Start Call
+                    {isCallLoading ? 'Starting Call...' : 'Start Call'}
                   </button>
                   <button className="btn-secondary">
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
