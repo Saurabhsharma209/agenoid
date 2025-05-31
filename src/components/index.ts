@@ -7,4 +7,5 @@ export { KPIWidget } from './KPIWidget';
 export { DonutChart } from './DonutChart';
 export { BarChart } from './BarChart';
 export { LineChart } from './LineChart';
-export { AgentAssist } from './AgentAssist'; 
+export { AgentAssist } from './AgentAssist';
+export { OutgoingCallWindow } from './OutgoingCallWindow'; 
