@@ -26,6 +26,23 @@ const initialMetrics: CampaignMetrics = {
   recoveryRate: 0
 };
 
+const generateRandomLead = (): Omit<Lead, 'id'> => {
+  const statuses = ['pending', 'in_progress', 'completed', 'escalated'] as const;
+  const steps = ['SMS', 'WhatsApp', 'Voicebot', 'Agent'] as const;
+  const sentiments = ['positive', 'neutral', 'negative'] as const;
+  const plans = ['A', 'B'] as const;
+
+  return {
+    name: `Lead ${Math.floor(Math.random() * 1000)}`,
+    phone: `+1${Math.floor(Math.random() * 10000000000)}`,
+    plan: plans[Math.floor(Math.random() * plans.length)],
+    status: statuses[Math.floor(Math.random() * statuses.length)],
+    currentStep: steps[Math.floor(Math.random() * steps.length)],
+    sentiment: sentiments[Math.floor(Math.random() * sentiments.length)],
+    updatedAt: new Date().toISOString()
+  };
+};
+
 export const useStore = create<CampaignState & {
   // Actions
   addLead: (lead: Omit<Lead, 'id' | 'status' | 'currentStep' | 'sentiment' | 'updatedAt'>) => void;
@@ -35,6 +52,7 @@ export const useStore = create<CampaignState & {
   stopCampaign: () => void;
   addInsight: (insight: Omit<CampaignInsight, 'timestamp'>) => void;
   updateMetrics: () => void;
+  addRandomLeads: (count: number) => void;
 }>((set, get) => ({
   // Initial state
   leads: [],
@@ -174,5 +192,24 @@ export const useStore = create<CampaignState & {
     };
 
     set({ metrics });
+  },
+
+  addRandomLeads: (count: number) => {
+    const newLeads = Array.from({ length: count }, () => ({
+      ...generateRandomLead(),
+      id: uuidv4()
+    }));
+
+    set((state) => ({
+      leads: [...state.leads, ...newLeads],
+      metrics: {
+        ...state.metrics,
+        totalLeads: state.leads.length + newLeads.length,
+        planDistribution: {
+          A: state.leads.filter(l => l.plan === 'A').length + newLeads.filter(l => l.plan === 'A').length,
+          B: state.leads.filter(l => l.plan === 'B').length + newLeads.filter(l => l.plan === 'B').length
+        }
+      }
+    }));
   }
 })); 

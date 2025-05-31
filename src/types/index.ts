@@ -2,7 +2,7 @@ export type Plan = 'A' | 'B';
 
 export type Channel = 'SMS' | 'WhatsApp' | 'Voicebot' | 'Agent';
 
-export type Status = 'waiting' | 'in_progress' | 'completed' | 'failed' | 'escalated';
+export type Status = 'pending' | 'in_progress' | 'completed' | 'escalated' | 'failed';
 
 export type Sentiment = 'positive' | 'neutral' | 'negative';
 
@@ -10,12 +10,12 @@ export interface Lead {
   id: string;
   name: string;
   phone: string;
-  plan: Plan;
+  plan: string;
   status: Status;
-  currentStep: Channel | null;
+  currentStep?: Channel;
   sentiment: Sentiment;
-  escalationReason?: string;
   updatedAt: string;
+  escalationReason?: string;
 }
 
 export interface CampaignPlan {

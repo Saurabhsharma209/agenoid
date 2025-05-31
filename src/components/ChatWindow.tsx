@@ -10,7 +10,7 @@ export const ChatWindow: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { chatHistory, addChatMessage, startCampaign } = useStore();
+  const { chatHistory, addChatMessage, startCampaign, addRandomLeads } = useStore();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,6 +33,10 @@ export const ChatWindow: React.FC = () => {
       // Get response from AGIX
       const response = await agixService.sendMessage(message);
       addChatMessage(response.response, 'assistant');
+
+      // Add random leads when we get a response
+      const randomLeadCount = Math.floor(Math.random() * 1) + 1; // 1-3 leads
+      addRandomLeads(randomLeadCount);
 
       // Handle campaign-related commands
       if (message.toLowerCase().includes('start campaign')) {
